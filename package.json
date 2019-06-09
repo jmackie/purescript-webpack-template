@@ -4,7 +4,8 @@
     "start": "webpack-dev-server --config-register @babel/register --config webpack.config.js --mode development",
     "postinstall": "env psc-package install",
     "clean": "rm -rf node_modules .psc-package output dist",
-    "webpack:development": "webpack --config-register @babel/register --config webpack.config.js --mode development"
+    "webpack:development": "webpack --config-register @babel/register --config webpack.config.js --mode development",
+    "webpack:production": "webpack --config-register @babel/register --config webpack.config.js --mode production"
   },
   "dependencies": {
     "@babel/core": "^7.4.0",
