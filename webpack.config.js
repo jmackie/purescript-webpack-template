@@ -47,6 +47,9 @@ export default function(env, argv) {
       //filename: "[name].[hash].js"
     },
 
+    // Optimization settings.
+    optimization: optimization(env, argv),
+
     // Environment target.
     target: "web",
 
@@ -68,9 +71,6 @@ export default function(env, argv) {
 
     // `webpack-dev-server` configuration
     devServer: devServerConfig(env, argv),
-
-    // Webpack performance budgets.
-    performance: performance(env, argv),
 
     // Don't watch everything.
     // Hopefully this helps with not hitting open file limits...
@@ -161,11 +161,18 @@ function devServerConfig(_env, _argv) {
   };
 }
 
-function performance(_env, argv) {
+function optimization(_env, argv) {
   return argv.mode === "production"
     ? {
-        maxAssetSize: 250000, // 250kb
-        hints: "error", // pro tip: keep yourself honest
+        splitChunks: {
+          cacheGroups: {
+            vendor: {
+              test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+              name: "react",
+              chunks: "all",
+            },
+          },
+        },
       }
     : {};
 }
