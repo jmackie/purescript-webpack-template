@@ -2,8 +2,9 @@ import path from "path";
 
 // Plugins
 import HtmlWebpackPlugin from "html-webpack-plugin";
+import MiniCssExtractPlugin from "mini-css-extract-plugin";
 
-// Absolute directory paths
+// Directory paths (absolute)
 const srcDirectory = path.resolve(__dirname, "src");
 const distDirectory = path.resolve(__dirname, "dist");
 
@@ -13,7 +14,6 @@ const distDirectory = path.resolve(__dirname, "dist");
 // webpack --env.production    # sets env.production == true
 // webpack --env.platform=web  # sets env.platform == "web"
 // ```
-//
 // https://webpack.js.org/configuration/configuration-types/
 // https://webpack.js.org/api/cli#environment-options
 export default function(env, argv) {
@@ -52,7 +52,7 @@ export default function(env, argv) {
 
     // Loaders.
     module: {
-      rules: [purescriptRule(env, argv)],
+      rules: [purescriptRule(env, argv), cssRule(env, argv)],
     },
 
     // Plugins.
@@ -60,8 +60,10 @@ export default function(env, argv) {
 
     // Options for resolving module requests.
     // (does not apply to resolving to loaders)
+    // I.e. where to look for imports that aren't relative paths,
+    // like `require('react')`
     resolve: {
-      modules: ["node_modules", srcDirectory],
+      modules: ["node_modules"],
     },
 
     // webpack-dev-server
@@ -69,30 +71,43 @@ export default function(env, argv) {
   };
 }
 
-function purescriptRule(env, argv) {
+function purescriptRule(_env, _argv) {
   return {
     test: /\.purs$/,
     exclude: /node_modules/,
-    use: [pursLoader(env, argv)],
+    use: [
+      // https://github.com/ethul/purs-loader
+      {
+        loader: "purs-loader",
+        options: {
+          pscArgs: { codegen: "js,sourcemaps" }, // uses `dargs`
+          bundle: false,
+          // NOTE: the example in `purs docs --help` is a good reference for
+          // how these globs should look.
+          src: [
+            path.join(".psc-package", "*", "*", "*", "src", "**", "*.purs"),
+            //         ^^^^^^^^^^^^
+            // Change this if you're using bower or spago or whatever
+            path.join(srcDirectory, "purs", "**", "*.purs"),
+          ],
+        },
+      },
+    ],
   };
 }
 
-// https://github.com/ethul/purs-loader
-function pursLoader(_env, _argv) {
+function cssRule(env, argv) {
   return {
-    loader: "purs-loader",
-    options: {
-      pscArgs: { codegen: "js,sourcemaps" }, // uses `dargs`
-      bundle: false,
-      // NOTE: the example in `purs docs --help` is a good reference for
-      // how these globs should look.
-      src: [
-        path.join(".psc-package", "*", "*", "*", "src", "**", "*.purs"),
-        //         ^^^^^^^^^^^^
-        // Change this if you're using bower or spago or whatever
-        path.join(srcDirectory, "purs", "**", "*.purs"),
-      ],
-    },
+    test: /\.css/,
+    use: [
+      {
+        loader: MiniCssExtractPlugin.loader,
+        options: {
+          hmr: argv.mode === "development",
+        },
+      },
+      { loader: "css-loader", options: {} },
+    ],
   };
 }
 
@@ -105,6 +120,14 @@ function plugins(_env, _argv) {
       filename: "index.html",
       // https://github.com/jantimon/html-webpack-plugin/blob/master/default_index.ejs
       template: path.join(srcDirectory, "index.ejs"),
+    }),
+
+    // https://webpack.js.org/plugins/mini-css-extract-plugin/
+    new MiniCssExtractPlugin({
+      // Options similar to the same options in webpackOptions.output
+      // both options are optional
+      filename: "[name].css",
+      chunkFilename: "[id].css",
     }),
   ];
 }
