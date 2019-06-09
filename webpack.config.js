@@ -1,7 +1,9 @@
 import path from "path";
 
+// Plugins
 import HtmlWebpackPlugin from "html-webpack-plugin";
 
+// Absolute directory paths
 const srcDirectory = path.resolve(__dirname, "src");
 const distDirectory = path.resolve(__dirname, "dist");
 
@@ -12,7 +14,6 @@ const distDirectory = path.resolve(__dirname, "dist");
 // webpack --env.platform=web  # sets env.platform == "web"
 // ```
 //
-// https://webpack.js.org/configuration/
 // https://webpack.js.org/configuration/configuration-types/
 // https://webpack.js.org/api/cli#environment-options
 export default function(env, argv) {
@@ -27,7 +28,7 @@ export default function(env, argv) {
     //
     // https://webpack.js.org/configuration/entry-context#entry
     entry: {
-      bundle: path.join(srcDirectory, "index.js")
+      bundle: path.join(srcDirectory, "index.js"),
     },
 
     // The top-level output key contains set of options instructing webpack on
@@ -42,7 +43,7 @@ export default function(env, argv) {
       // The url to the output directory resolved relative to the HTML page.
       publicPath: "/",
 
-      filename: "[name].js" // [name] is the object key in `entry` (above)
+      filename: "[name].js", // [name] is the object key in `entry` (above)
       //filename: "[name].[hash].js"
     },
 
@@ -51,7 +52,7 @@ export default function(env, argv) {
 
     // Loaders.
     module: {
-      rules: [purescriptRule(env, argv)]
+      rules: [purescriptRule(env, argv)],
     },
 
     // Plugins.
@@ -60,11 +61,11 @@ export default function(env, argv) {
     // Options for resolving module requests.
     // (does not apply to resolving to loaders)
     resolve: {
-      modules: ["node_modules", srcDirectory]
+      modules: ["node_modules", srcDirectory],
     },
 
     // webpack-dev-server
-    devServer: devServerConfig(env, argv)
+    devServer: devServerConfig(env, argv),
   };
 }
 
@@ -72,12 +73,12 @@ function purescriptRule(env, argv) {
   return {
     test: /\.purs$/,
     exclude: /node_modules/,
-    use: [pursLoader(env, argv)]
+    use: [pursLoader(env, argv)],
   };
 }
 
 // https://github.com/ethul/purs-loader
-function pursLoader(env, argv) {
+function pursLoader(_env, _argv) {
   return {
     loader: "purs-loader",
     options: {
@@ -89,13 +90,13 @@ function pursLoader(env, argv) {
         path.join(".psc-package", "*", "*", "*", "src", "**", "*.purs"),
         //         ^^^^^^^^^^^^
         // Change this if you're using bower or spago or whatever
-        path.join(srcDirectory, "purs", "**", "*.purs")
-      ]
-    }
+        path.join(srcDirectory, "purs", "**", "*.purs"),
+      ],
+    },
   };
 }
 
-function plugins(env, argv) {
+function plugins(_env, _argv) {
   return [
     // https://webpack.js.org/plugins/html-webpack-plugin/
     // https://github.com/jantimon/html-webpack-plugin#options
@@ -103,19 +104,19 @@ function plugins(env, argv) {
       // Generated file name
       filename: "index.html",
       // https://github.com/jantimon/html-webpack-plugin/blob/master/default_index.ejs
-      template: path.join(srcDirectory, "index.ejs")
-    })
+      template: path.join(srcDirectory, "index.ejs"),
+    }),
   ];
 }
 
 // https://webpack.js.org/configuration/dev-server
-function devServerConfig(env, argv) {
+function devServerConfig(_env, _argv) {
   return {
     contentBase: distDirectory,
     port: 4009,
     stats: "errors-only",
     progress: true,
     inline: true,
-    hot: true
+    hot: true,
   };
 }
