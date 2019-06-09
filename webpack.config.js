@@ -153,7 +153,7 @@ function plugins(_env, _argv) {
 function devServerConfig(_env, _argv) {
   return {
     contentBase: distDirectory,
-    port: 4009,
+    port: 1234,
     stats: "errors-only",
     progress: true,
     inline: true,
