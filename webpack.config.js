@@ -66,11 +66,17 @@ export default function(env, argv) {
       modules: ["node_modules"],
     },
 
-    // webpack-dev-server
+    // `webpack-dev-server` configuration
     devServer: devServerConfig(env, argv),
 
     // Webpack performance budgets.
     performance: performance(env, argv),
+
+    // Don't watch everything.
+    // Hopefully this helps with not hitting open file limits...
+    watchOptions: {
+      ignored: ["node_modules", ".psc-package"],
+    },
   };
 }
 
@@ -87,7 +93,15 @@ function purescriptRule(_env, _argv) {
       {
         loader: "purs-loader",
         options: {
-          pscArgs: { codegen: "js,sourcemaps" }, // uses `dargs`
+          // Why use `purescript-psa` instead of plain `purs`?
+          // a) The output is nicer to look at
+          // b) It lets us censor warnings we don't care about
+          psc: "psa",
+          // NOTE: uses `dargs`
+          pscArgs: {
+            codegen: "js,sourcemaps",
+            "censor-codes": ["ImplicitQualifiedImportReExport"],
+          },
           bundle: false,
           // NOTE: the example in `purs docs --help` is a good reference for
           // how these globs should look.
