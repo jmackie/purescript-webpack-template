@@ -2,6 +2,8 @@
   "private": true,
   "scripts": {
     "start": "webpack-dev-server --config-register @babel/register --config webpack.config.js --mode development",
+    "postinstall": "env psc-package install",
+    "clean": "rm -rf node_modules .psc-package output dist",
     "webpack:development": "webpack --config-register @babel/register --config webpack.config.js --mode development"
   },
   "dependencies": {
