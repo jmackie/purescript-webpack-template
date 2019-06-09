@@ -5,7 +5,7 @@ to do it almost every time, I thought I should finally create a reference for
 myself (particularly now that we have [GitHub templates][github-templates-announcement] 🎉)
 
 The style is a bit opinionated (#sorrynotsorry) but generally adheres to best
-practices as I understand them. Feedback and improvements are more than welcome.
+practices as I understand them. Feedback and suggestions are twelcome.
 
 ## Versions
 
@@ -17,16 +17,16 @@ practices as I understand them. Feedback and improvements are more than welcome.
 
 I'm not a fan of managing purescript tooling (`purs`, `psc-package`,
 `spago`...) with Node, and hence these things aren't listed in `package.json`.
-In order for this to work out of the box you should have `purs` and
-`psc-package` available somewhere on your `$PATH`.
+In order to work out of the box you should have `purs` and `psc-package` available 
+somewhere on your `$PATH`.
 
 In most cases it should be enough to grab a binary from the relevant releases
-page (see [purescript releases][purs-releases] and [psc-package releases][psc-packages-releases]) and
+page (see [purescript releases][purs-releases] and [psc-package releases][psc-package-releases]) and
 put it in a `bin` folder somewhere\*. For non-trivial projects you'll probably
 want to use something more robust (e.g. Nix; [shameless plug][purescript-nix]).
 
-\* Bonus points: pipe the tarball to `shasum` and make sure it matches the
-relavant `.sha` file on the releases page.
+**\* Bonus points: pipe the tarball to `shasum` and make sure it matches the
+relavant `.sha` file on the releases page.**
 
 ## Notes
 
@@ -37,10 +37,10 @@ relavant `.sha` file on the releases page.
 - [`css-modules`](https://github.com/css-modules/css-modules) are cool, I recommend
   using them. And webpack's `css-loader` supports them out the box.
 - I've used React (specifically, [`react-basic-hooks`][react-basic-hooks]), but
-- that's just for the sake of example. Swap it out for whatever you want to use.
-- PureScript's local documentation is great, you should use it. For example, run
+  that's just for the sake of example. Swap it out for whatever you want to use.
+- PureScript's local documentation is great, you should use it. E.g. run
   `purs docs --format html ".psc-package/*/*/*/src/**/*.purs"` then point your
-  browser at `./generated-docs/html/index.html`.
+  browser at `./generated-docs/html/index.html` 👌
 
 ## Useful References
 
