@@ -68,14 +68,21 @@ export default function(env, argv) {
 
     // webpack-dev-server
     devServer: devServerConfig(env, argv),
+
+    // Webpack performance budgets.
+    performance: performance(env, argv),
   };
 }
 
+// How to handle `.purs` files.
 function purescriptRule(_env, _argv) {
   return {
     test: /\.purs$/,
     exclude: /node_modules/,
     use: [
+      // TODO: I'm not sure how much of a difference this makes yet...
+      { loader: "cache-loader", options: {} },
+
       // https://github.com/ethul/purs-loader
       {
         loader: "purs-loader",
@@ -96,6 +103,7 @@ function purescriptRule(_env, _argv) {
   };
 }
 
+// How to handle styles.
 function cssRule(env, argv) {
   return {
     test: /\.css/,
@@ -123,12 +131,7 @@ function plugins(_env, _argv) {
     }),
 
     // https://webpack.js.org/plugins/mini-css-extract-plugin/
-    new MiniCssExtractPlugin({
-      // Options similar to the same options in webpackOptions.output
-      // both options are optional
-      filename: "[name].css",
-      chunkFilename: "[id].css",
-    }),
+    new MiniCssExtractPlugin({}),
   ];
 }
 
@@ -142,4 +145,13 @@ function devServerConfig(_env, _argv) {
     inline: true,
     hot: true,
   };
+}
+
+function performance(_env, argv) {
+  return argv.mode === "production"
+    ? {
+        maxAssetSize: 250000, // 250kb
+        hints: "error", // pro tip: keep yourself honest
+      }
+    : {};
 }
