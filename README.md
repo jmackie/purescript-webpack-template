@@ -34,8 +34,13 @@ relavant `.sha` file on the releases page.
 - For most apps you'll probably want webpack configs for production and
   development environments. With this setup that should hopefully be trivial
   to do.
-- [`css-modules`](https://github.com/css-modules/css-modules) are cool, I recommend using them. And
-  webpack's `css-loader` supports them out the box.
+- [`css-modules`](https://github.com/css-modules/css-modules) are cool, I recommend
+  using them. And webpack's `css-loader` supports them out the box.
+- I've used React (specifically, [`react-basic-hooks`][react-basic-hooks]), but
+- that's just for the sake of example. Swap it out for whatever you want to use.
+- PureScript's local documentation is great, you should use it. For example, run
+  `purs docs --format html ".psc-package/*/*/*/src/**/*.purs"` then point your
+  browser at `./generated-docs/html/index.html`.
 
 ## Useful References
 
@@ -51,3 +56,4 @@ relavant `.sha` file on the releases page.
 [purescript]: http://www.purescript.org/
 [babel]: https://babeljs.io/
 [purescript-nix]: https://github.com/jmackie/purescript-nix
+[react-basic-hooks]: https://github.com/spicydonuts/purescript-react-basic-hooks
