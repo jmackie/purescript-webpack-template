@@ -75,13 +75,13 @@ export default function(env, argv) {
     // Don't watch everything.
     // Hopefully this helps with not hitting open file limits...
     watchOptions: {
-      ignored: ["node_modules", ".psc-package"],
+      ignored: ["node_modules", ".spago"],
     },
   };
 }
 
 // How to handle `.purs` files.
-function purescriptRule(_env, _argv) {
+function purescriptRule(_env, argv) {
   return {
     test: /\.purs$/,
     exclude: /node_modules/,
@@ -89,9 +89,9 @@ function purescriptRule(_env, _argv) {
       // TODO: I'm not sure how much of a difference this makes yet...
       { loader: "cache-loader", options: {} },
 
-      // https://github.com/ethul/purs-loader
       {
         loader: "purs-loader",
+        // https://github.com/ethul/purs-loader#options
         options: {
           // Why use `purescript-psa` instead of plain `purs`?
           // a) The output is nicer to look at
@@ -102,15 +102,8 @@ function purescriptRule(_env, _argv) {
             codegen: "js,sourcemaps",
             "censor-codes": ["ImplicitQualifiedImportReExport"],
           },
-          bundle: false,
-          // NOTE: the example in `purs docs --help` is a good reference for
-          // how these globs should look.
-          src: [
-            path.join(".psc-package", "*", "*", "*", "src", "**", "*.purs"),
-            //         ^^^^^^^^^^^^
-            // Change this if you're using bower or spago or whatever
-            path.join(srcDirectory, "purs", "**", "*.purs"),
-          ],
+          bundle: argv.mode === "production",
+          spago: true,
         },
       },
     ],

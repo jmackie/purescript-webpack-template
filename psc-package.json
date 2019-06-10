@@ -1,6 +1,0 @@
-{
-  "name": "purescript-webpack-template",
-  "set": "psc-0.13.0-20190607",
-  "source": "https://github.com/purescript/package-sets.git",
-  "depends": ["prelude", "console", "react-basic-hooks"]
-}
