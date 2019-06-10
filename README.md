@@ -25,7 +25,7 @@ page (see [purescript releases][purs-releases] and [psc-package releases][psc-pa
 put it in a `bin` folder somewhere\*. For non-trivial projects you'll probably
 want to use something more robust (e.g. Nix; [shameless plug][purescript-nix]).
 
-**\* Bonus points: pipe the tarball to `shasum` and make sure it matches the
+**\* Good boy scout: pipe the tarball to `shasum` and make sure it matches the
 relavant `.sha` file on the releases page.**
 
 ## Notes
@@ -34,11 +34,11 @@ relavant `.sha` file on the releases page.**
 - For most apps you'll probably want webpack configs for production and
   development environments. With this setup that should hopefully be trivial
   to do.
-- [`css-modules`](https://github.com/css-modules/css-modules) are cool, I recommend
-  using them. And webpack's `css-loader` supports them out the box.
+- [`css-modules`](https://github.com/css-modules/css-modules) are cool, I strongly 
+  recommend them. And webpack's `css-loader` supports them out the box.
 - I've used React (specifically, [`react-basic-hooks`][react-basic-hooks]), but
-  that's just for the sake of example. Swap it out for whatever you want to use.
-- PureScript's local documentation is great, you should use it. E.g. run
+  that's just for the sake of example. Swap it out for whatever you want.
+- PureScript's local (offline) documentation is great - run
   `purs docs --format html ".psc-package/*/*/*/src/**/*.purs"` then point your
   browser at `./generated-docs/html/index.html` 👌
 
