@@ -62,7 +62,7 @@ export default function(env, argv) {
     plugins: plugins(env, argv),
 
     // Options for resolving module requests.
-    // (does not apply to resolving to loaders)
+    // (does not apply to resolving loaders)
     // I.e. where to look for imports that aren't relative paths,
     // like `require('react')`
     resolve: {
