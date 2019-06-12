@@ -16,146 +16,136 @@ const distDirectory = path.resolve(__dirname, "dist");
 // ```
 // https://webpack.js.org/configuration/configuration-types/
 // https://webpack.js.org/api/cli#environment-options
-export default function(env, argv) {
-  return {
-    // The base directory, an **absolute path**, for resolving entry
-    // points and loaders from configuration.
-    //
-    // https://webpack.js.org/configuration/entry-context#context
-    context: __dirname,
+export default (env, argv) => ({
+  // The base directory, an **absolute path**, for resolving entry
+  // points and loaders from configuration.
+  //
+  // https://webpack.js.org/configuration/entry-context#context
+  context: __dirname,
 
-    // The entry object is where webpack looks to start building the bundle.
-    //
-    // https://webpack.js.org/configuration/entry-context#entry
-    entry: {
-      bundle: path.join(srcDirectory, "index.js"),
-    },
+  // The entry object is where webpack looks to start building the bundle.
+  //
+  // https://webpack.js.org/configuration/entry-context#entry
+  entry: {
+    bundle: path.join(srcDirectory, "index.js"),
+  },
 
-    // The top-level output key contains set of options instructing webpack on
-    // how and where it should output your bundles, assets and anything else
-    // you bundle or load with webpack.
-    //
-    // https://webpack.js.org/configuration/output/
-    output: {
-      // The output directory as an **absolute** path.
-      path: distDirectory,
+  // The top-level output key contains set of options instructing webpack on
+  // how and where it should output your bundles, assets and anything else
+  // you bundle or load with webpack.
+  //
+  // https://webpack.js.org/configuration/output/
+  output: {
+    // The output directory as an **absolute** path.
+    path: distDirectory,
 
-      // The url to the output directory resolved relative to the HTML page.
-      publicPath: "/",
+    // The url to the output directory resolved relative to the HTML page.
+    publicPath: "/",
 
-      filename: "[name].js", // [name] is the object key in `entry` (above)
-      //filename: "[name].[hash].js"
-    },
+    filename: "[name].js", // [name] is the object key in `entry` (above)
+    //filename: "[name].[hash].js"
+  },
 
-    // Optimization settings.
-    optimization: optimization(env, argv),
+  // Optimization settings.
+  optimization: optimization(env, argv),
 
-    // Environment target.
-    target: "web",
+  // Environment target.
+  target: "web",
 
-    // Loaders.
-    module: {
-      rules: [purescriptRule(env, argv), cssRule(env, argv)],
-    },
+  // Loaders.
+  module: {
+    rules: [purescriptRule(env, argv), cssRule(env, argv)],
+  },
 
-    // Plugins.
-    plugins: plugins(env, argv),
+  // Plugins.
+  plugins: plugins(env, argv),
 
-    // Options for resolving module requests.
-    // (does not apply to resolving loaders)
-    // I.e. where to look for imports that aren't relative paths,
-    // like `require('react')`
-    resolve: {
-      modules: ["node_modules"],
-    },
+  // Options for resolving module requests.
+  // (does not apply to resolving loaders)
+  // I.e. where to look for imports that aren't relative paths,
+  // like `require('react')`
+  resolve: {
+    modules: ["node_modules"],
+  },
 
-    // `webpack-dev-server` configuration
-    devServer: devServerConfig(env, argv),
+  // `webpack-dev-server` configuration
+  devServer: devServerConfig(env, argv),
 
-    // Don't watch everything.
-    // Hopefully this helps with not hitting open file limits...
-    watchOptions: {
-      ignored: ["node_modules", ".spago"],
-    },
-  };
-}
+  // Don't watch everything.
+  // Hopefully this helps with not hitting open file limits...
+  watchOptions: {
+    ignored: ["node_modules", ".spago"],
+  },
+});
 
 // How to handle `.purs` files.
-function purescriptRule(_env, argv) {
-  return {
-    test: /\.purs$/,
-    exclude: /node_modules/,
-    use: [
-      // TODO: I'm not sure how much of a difference this makes yet...
-      { loader: "cache-loader", options: {} },
+const purescriptRule = (_env, argv) => ({
+  test: /\.purs$/,
+  exclude: /node_modules/,
+  use: [
+    // TODO: I'm not sure how much of a difference this makes yet...
+    { loader: "cache-loader", options: {} },
 
-      {
-        loader: "purs-loader",
-        // https://github.com/ethul/purs-loader#options
-        options: {
-          // Why use `purescript-psa` instead of plain `purs`?
-          // a) The output is nicer to look at
-          // b) It lets us censor warnings we don't care about
-          psc: "psa",
-          // NOTE: uses `dargs`
-          pscArgs: {
-            codegen: "js,sourcemaps",
-            "censor-codes": ["ImplicitQualifiedImportReExport"],
-          },
-          bundle: argv.mode === "production",
-          spago: true,
+    {
+      loader: "purs-loader",
+      // https://github.com/ethul/purs-loader#options
+      options: {
+        // Why use `purescript-psa` instead of plain `purs`?
+        // a) The output is nicer to look at
+        // b) It lets us censor warnings we don't care about
+        psc: "psa",
+        // NOTE: uses `dargs`
+        pscArgs: {
+          codegen: "js,sourcemaps",
+          "censor-codes": ["ImplicitQualifiedImportReExport"],
         },
+        bundle: argv.mode === "production",
+        spago: true,
       },
-    ],
-  };
-}
+    },
+  ],
+});
 
 // How to handle styles.
-function cssRule(env, argv) {
-  return {
-    test: /\.css/,
-    use: [
-      {
-        loader: MiniCssExtractPlugin.loader,
-        options: {
-          hmr: argv.mode === "development",
-        },
+const cssRule = (env, argv) => ({
+  test: /\.css/,
+  use: [
+    {
+      loader: MiniCssExtractPlugin.loader,
+      options: {
+        hmr: argv.mode === "development",
       },
-      { loader: "css-loader", options: {} },
-    ],
-  };
-}
+    },
+    { loader: "css-loader", options: {} },
+  ],
+});
 
-function plugins(_env, _argv) {
-  return [
-    // https://webpack.js.org/plugins/html-webpack-plugin/
-    // https://github.com/jantimon/html-webpack-plugin#options
-    new HtmlWebpackPlugin({
-      // Generated file name
-      filename: "index.html",
-      // https://github.com/jantimon/html-webpack-plugin/blob/master/default_index.ejs
-      template: path.join(srcDirectory, "index.ejs"),
-    }),
+const plugins = (_env, _argv) => [
+  // https://webpack.js.org/plugins/html-webpack-plugin/
+  // https://github.com/jantimon/html-webpack-plugin#options
+  new HtmlWebpackPlugin({
+    // Generated file name
+    filename: "index.html",
+    // https://github.com/jantimon/html-webpack-plugin/blob/master/default_index.ejs
+    template: path.join(srcDirectory, "index.ejs"),
+  }),
 
-    // https://webpack.js.org/plugins/mini-css-extract-plugin/
-    new MiniCssExtractPlugin({}),
-  ];
-}
+  // https://webpack.js.org/plugins/mini-css-extract-plugin/
+  new MiniCssExtractPlugin({}),
+];
 
 // https://webpack.js.org/configuration/dev-server
-function devServerConfig(_env, _argv) {
-  return {
-    contentBase: distDirectory,
-    port: 1234,
-    stats: "errors-only",
-    progress: true,
-    inline: true,
-    hot: true,
-  };
-}
+const devServerConfig = (_env, _argv) => ({
+  contentBase: distDirectory,
+  port: 1234,
+  stats: "errors-only",
+  progress: true,
+  inline: true,
+  hot: true,
+});
 
-function optimization(_env, argv) {
-  return argv.mode === "production"
+const optimization = (_env, argv) =>
+  argv.mode === "production"
     ? {
         splitChunks: {
           cacheGroups: {
@@ -168,4 +158,3 @@ function optimization(_env, argv) {
         },
       }
     : {};
-}
