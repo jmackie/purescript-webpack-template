@@ -3,6 +3,7 @@ import path from "path";
 // Plugins
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import { DefinePlugin } from "webpack";
 
 // Directory paths (absolute)
 const srcDirectory = path.resolve(__dirname, "src");
@@ -21,8 +22,11 @@ export default (env, argv) => webpackConfig(getOptions(env, argv));
 // https://webpack.js.org/configuration/configuration-types/
 // https://webpack.js.org/api/cli#environment-options
 const getOptions = (env, argv) => {
-  // Maybe look at `process.env` here.
-  return { production: argv.mode && argv.mode === "production" };
+  // Maybe look at `process.env` here...
+  return {
+    production: argv.mode && argv.mode === "production",
+    apiUrl: (env && env.apiUrl) || "https://jsonplaceholder.typicode.com/",
+  };
 };
 
 const webpackConfig = options => ({
@@ -129,7 +133,7 @@ const cssRule = options => ({
   ],
 });
 
-const plugins = _options => [
+const plugins = options => [
   // https://webpack.js.org/plugins/html-webpack-plugin/
   // https://github.com/jantimon/html-webpack-plugin#options
   new HtmlWebpackPlugin({
@@ -141,6 +145,12 @@ const plugins = _options => [
 
   // https://webpack.js.org/plugins/mini-css-extract-plugin/
   new MiniCssExtractPlugin({}),
+
+  // Constants defined at build time.
+  // https://webpack.js.org/plugins/define-plugin/
+  new DefinePlugin({
+    API_URL: JSON.stringify(options.apiUrl),
+  }),
 ];
 
 // https://webpack.js.org/configuration/dev-server

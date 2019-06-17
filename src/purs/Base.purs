@@ -14,6 +14,11 @@ import Data.Maybe
   ( Maybe(..)
   ) as Exports
 
+import Data.Either
+  ( Either(..)
+  , either
+  ) as Exports
+
 import Data.Tuple.Nested
   ( (/\)
   ) as Exports
