@@ -30,9 +30,6 @@ relavant `.sha` file.**
 ## Notes
 
 - All the `*rc` files apart from `.babelrc` are optional. Delete them if you want.
-- For most apps you'll probably want webpack configs for production and
-  development environments. With this setup that should hopefully be trivial
-  to do.
 - [`css-modules`](https://github.com/css-modules/css-modules) are cool, I strongly 
   recommend them. And webpack's `css-loader` supports them out the box.
 - I've used React (specifically, [`react-basic-hooks`][react-basic-hooks]), but
