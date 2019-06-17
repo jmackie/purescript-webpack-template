@@ -1,9 +1,10 @@
 import path from "path";
 
 // Plugins
+import { DefinePlugin } from "webpack";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
-import { DefinePlugin } from "webpack";
+import { CleanWebpackPlugin } from "clean-webpack-plugin";
 
 // Directory paths (absolute)
 const srcDirectory = path.resolve(__dirname, "src");
@@ -22,74 +23,81 @@ export default (env, argv) => webpackConfig(getOptions(env, argv));
 // https://webpack.js.org/configuration/configuration-types/
 // https://webpack.js.org/api/cli#environment-options
 const getOptions = (env, argv) => {
+  const isDevServer = argv["$0"].indexOf("webpack-dev-server") !== -1;
+
   // Maybe look at `process.env` here...
+
   return {
-    production: argv.mode && argv.mode === "production",
+    production: !isDevServer && argv.mode && argv.mode === "production",
     apiUrl: (env && env.apiUrl) || "https://jsonplaceholder.typicode.com/",
+    isDevServer,
   };
 };
 
-const webpackConfig = options => ({
-  // The base directory, an **absolute path**, for resolving entry
-  // points and loaders from configuration.
-  //
-  // https://webpack.js.org/configuration/entry-context#context
-  context: __dirname,
+const webpackConfig = options => {
+  console.log("Build options:\n", options);
+  return {
+    // The base directory, an **absolute path**, for resolving entry
+    // points and loaders from configuration.
+    //
+    // https://webpack.js.org/configuration/entry-context#context
+    context: __dirname,
 
-  // The entry object is where webpack looks to start building the bundle.
-  //
-  // https://webpack.js.org/configuration/entry-context#entry
-  entry: {
-    bundle: path.join(srcDirectory, "index.js"),
-  },
+    // The entry object is where webpack looks to start building the bundle.
+    //
+    // https://webpack.js.org/configuration/entry-context#entry
+    entry: {
+      bundle: path.join(srcDirectory, "index.js"),
+    },
 
-  // The top-level output key contains set of options instructing webpack on
-  // how and where it should output your bundles, assets and anything else
-  // you bundle or load with webpack.
-  //
-  // https://webpack.js.org/configuration/output/
-  output: {
-    // The output directory as an **absolute** path.
-    path: distDirectory,
+    // The top-level output key contains set of options instructing webpack on
+    // how and where it should output your bundles, assets and anything else
+    // you bundle or load with webpack.
+    //
+    // https://webpack.js.org/configuration/output/
+    output: {
+      // The output directory as an **absolute** path.
+      path: distDirectory,
 
-    // The url to the output directory resolved relative to the HTML page.
-    publicPath: "/",
+      // The url to the output directory resolved relative to the HTML page.
+      publicPath: "/",
 
-    filename: "[name].js", // [name] is the object key in `entry` (above)
-    //filename: "[name].[hash].js"
-  },
+      filename: options.production ? "[name].[hash].js" : "[name].js",
+      // [name] is the object key in `entry` (above)
+    },
 
-  // Optimization settings.
-  optimization: optimization(options),
+    // Optimization settings.
+    optimization: optimization(options),
 
-  // Environment target.
-  target: "web",
+    // Environment target.
+    target: "web",
 
-  // Loaders.
-  module: {
-    rules: [purescriptRule(options), cssRule(options)],
-  },
+    // Loaders.
+    module: {
+      rules: [purescriptRule(options), cssRule(options)],
+    },
 
-  // Plugins.
-  plugins: plugins(options),
+    // Plugins.
+    plugins: plugins(options),
 
-  // Options for resolving module requests.
-  // (does not apply to resolving loaders)
-  // I.e. where to look for imports that aren't relative paths,
-  // like `require('react')`
-  resolve: {
-    modules: ["node_modules"],
-  },
+    // Options for resolving module requests.
+    // (does not apply to resolving loaders)
+    // I.e. where to look for imports that aren't relative paths,
+    // like `require('react')`
+    resolve: {
+      modules: ["node_modules"],
+    },
 
-  // `webpack-dev-server` configuration
-  devServer: devServerConfig(options),
+    // `webpack-dev-server` configuration
+    devServer: devServerConfig(options),
 
-  // Don't watch everything.
-  // Hopefully this helps with not hitting open file limits...
-  watchOptions: {
-    ignored: ["node_modules", ".spago"],
-  },
-});
+    // Don't watch everything.
+    // Hopefully this helps with not hitting open file limits...
+    watchOptions: {
+      ignored: ["node_modules", ".spago"],
+    },
+  };
+};
 
 // How to handle `.purs` files.
 const purescriptRule = options => ({
@@ -133,27 +141,36 @@ const cssRule = options => ({
   ],
 });
 
-const plugins = options => [
-  // https://webpack.js.org/plugins/html-webpack-plugin/
-  // https://github.com/jantimon/html-webpack-plugin#options
-  new HtmlWebpackPlugin({
-    // Generated file name
-    filename: "index.html",
-    // https://github.com/jantimon/html-webpack-plugin/blob/master/default_index.ejs
-    template: path.join(srcDirectory, "index.ejs"),
+const plugins = options => {
+  const pluginArray = [
+    // https://webpack.js.org/plugins/html-webpack-plugin/
+    // https://github.com/jantimon/html-webpack-plugin#options
+    new HtmlWebpackPlugin({
+      // Generated file name
+      filename: "index.html",
+      // https://github.com/jantimon/html-webpack-plugin/blob/master/default_index.ejs
+      template: path.join(srcDirectory, "index.ejs"),
 
-    minify: options.production,
-  }),
+      minify: options.production,
+    }),
 
-  // https://webpack.js.org/plugins/mini-css-extract-plugin/
-  new MiniCssExtractPlugin({}),
+    // https://webpack.js.org/plugins/mini-css-extract-plugin/
+    new MiniCssExtractPlugin({
+      filename: options.production ? "[name].[hash].css" : "[name].css",
+    }),
 
-  // Constants defined at build time.
-  // https://webpack.js.org/plugins/define-plugin/
-  new DefinePlugin({
-    API_URL: JSON.stringify(options.apiUrl),
-  }),
-];
+    // Constants defined at build time.
+    // https://webpack.js.org/plugins/define-plugin/
+    new DefinePlugin({
+      API_URL: JSON.stringify(options.apiUrl),
+    }),
+  ];
+
+  if (!options.isDevServer) {
+    pluginArray.push(new CleanWebpackPlugin({ verbose: true }));
+  }
+  return pluginArray;
+};
 
 // https://webpack.js.org/configuration/dev-server
 const devServerConfig = _options => ({
