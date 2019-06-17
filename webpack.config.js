@@ -8,6 +8,10 @@ import MiniCssExtractPlugin from "mini-css-extract-plugin";
 const srcDirectory = path.resolve(__dirname, "src");
 const distDirectory = path.resolve(__dirname, "dist");
 
+export default (env, argv) => webpackConfig(getOptions(env, argv));
+
+// Map flags/env to a single options type.
+//
 // NOTE: the `env` object can be populated from the command line:
 //
 // ```
@@ -16,7 +20,12 @@ const distDirectory = path.resolve(__dirname, "dist");
 // ```
 // https://webpack.js.org/configuration/configuration-types/
 // https://webpack.js.org/api/cli#environment-options
-export default (env, argv) => ({
+const getOptions = (env, argv) => {
+  // Maybe look at `process.env` here.
+  return { production: argv.mode && argv.mode === "production" };
+};
+
+const webpackConfig = options => ({
   // The base directory, an **absolute path**, for resolving entry
   // points and loaders from configuration.
   //
@@ -47,18 +56,18 @@ export default (env, argv) => ({
   },
 
   // Optimization settings.
-  optimization: optimization(env, argv),
+  optimization: optimization(options),
 
   // Environment target.
   target: "web",
 
   // Loaders.
   module: {
-    rules: [purescriptRule(env, argv), cssRule(env, argv)],
+    rules: [purescriptRule(options), cssRule(options)],
   },
 
   // Plugins.
-  plugins: plugins(env, argv),
+  plugins: plugins(options),
 
   // Options for resolving module requests.
   // (does not apply to resolving loaders)
@@ -69,7 +78,7 @@ export default (env, argv) => ({
   },
 
   // `webpack-dev-server` configuration
-  devServer: devServerConfig(env, argv),
+  devServer: devServerConfig(options),
 
   // Don't watch everything.
   // Hopefully this helps with not hitting open file limits...
@@ -79,7 +88,7 @@ export default (env, argv) => ({
 });
 
 // How to handle `.purs` files.
-const purescriptRule = (_env, argv) => ({
+const purescriptRule = options => ({
   test: /\.purs$/,
   exclude: /node_modules/,
   use: [
@@ -99,7 +108,7 @@ const purescriptRule = (_env, argv) => ({
           codegen: "js,sourcemaps",
           "censor-codes": ["ImplicitQualifiedImportReExport"],
         },
-        bundle: argv.mode === "production",
+        bundle: options.production,
         spago: true,
       },
     },
@@ -107,20 +116,20 @@ const purescriptRule = (_env, argv) => ({
 });
 
 // How to handle styles.
-const cssRule = (env, argv) => ({
+const cssRule = options => ({
   test: /\.css/,
   use: [
     {
       loader: MiniCssExtractPlugin.loader,
       options: {
-        hmr: argv.mode === "development",
+        hmr: !options.production,
       },
     },
     { loader: "css-loader", options: {} },
   ],
 });
 
-const plugins = (_env, _argv) => [
+const plugins = _options => [
   // https://webpack.js.org/plugins/html-webpack-plugin/
   // https://github.com/jantimon/html-webpack-plugin#options
   new HtmlWebpackPlugin({
@@ -135,7 +144,7 @@ const plugins = (_env, _argv) => [
 ];
 
 // https://webpack.js.org/configuration/dev-server
-const devServerConfig = (_env, _argv) => ({
+const devServerConfig = _options => ({
   contentBase: distDirectory,
   port: 1234,
   stats: "errors-only",
@@ -144,8 +153,8 @@ const devServerConfig = (_env, _argv) => ({
   hot: true,
 });
 
-const optimization = (_env, argv) =>
-  argv.mode === "production"
+const optimization = options =>
+  options.production
     ? {
         splitChunks: {
           cacheGroups: {
