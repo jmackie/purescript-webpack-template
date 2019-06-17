@@ -141,6 +141,8 @@ const plugins = options => [
     filename: "index.html",
     // https://github.com/jantimon/html-webpack-plugin/blob/master/default_index.ejs
     template: path.join(srcDirectory, "index.ejs"),
+
+    minify: options.production,
   }),
 
   // https://webpack.js.org/plugins/mini-css-extract-plugin/
