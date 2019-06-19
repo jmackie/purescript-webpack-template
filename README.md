@@ -1,5 +1,7 @@
 # PureScript + Webpack project template 🚀
 
+[![Build Status](https://travis-ci.org/jmackie/purescript-webpack-template.svg?branch=master)](https://travis-ci.org/jmackie/purescript-webpack-template)
+
 Having written configurations like this so many times, and having forgotten how
 to do it almost every time, I thought I should finally create a reference for
 myself (particularly now that we have [GitHub templates][github-templates-announcement] 🎉)
@@ -30,7 +32,7 @@ relavant `.sha` file.**
 ## Notes
 
 - All the `*rc` files apart from `.babelrc` are optional. Delete them if you want.
-- [`css-modules`](https://github.com/css-modules/css-modules) are cool, I strongly 
+- [`css-modules`](https://github.com/css-modules/css-modules) are cool, I strongly
   recommend them. And webpack's `css-loader` supports them out the box.
 - I've used React (specifically, [`react-basic-hooks`][react-basic-hooks]), but
   that's just for the sake of example. Swap it out for whatever you want to use.

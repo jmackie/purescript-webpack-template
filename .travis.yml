@@ -1,0 +1,17 @@
+dist: trusty
+language: node_js
+node_js:
+  - "8"
+env:
+  - PURS_VERSION=0.13.0 SPAGO_VERSION=0.8.5.0
+
+install:
+  # Install purs
+  - curl -L https://github.com/purescript/purescript/releases/download/v$PURS_VERSION/linux64.tar.gz | tar --strip-components 1 -C $HOME/bin -xzf - purescript/purs
+  # Install spago
+  - curl -L https://github.com/spacchetti/spago/releases/download/$SPAGO_VERSION/linux.tar.gz | tar -C $HOME/bin -xzf - spago
+  # Install everything else
+  - yarn install
+script:
+  - yarn webpack:development
+  - yarn webpack:production
